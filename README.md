@@ -2,7 +2,7 @@ First build and install the arrow json lib. I choose version 8.0.0.
 Install it at ~/software/arrow-8.0.0/
 
 ```bash
-mkdir ~/workspace
+mkdir -p ~/workspace
 cd ~/workspace
 git clone --single-branch -b release-8.0.0 https://github.com/apache/arrow.git
 cd arrow/cpp
