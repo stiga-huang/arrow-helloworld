@@ -31,10 +31,7 @@ using arrow::Status;
 
 namespace {
 
-Status RunMain(int argc, char** argv) {
-  const char* json_filename = "test.json";
-  const char* arrow_filename = "test.arrow";
-
+Status RunMain(const char* json_filename) {
   std::vector<std::shared_ptr<arrow::Field>> fields_list = {};
   fields_list.push_back(arrow::field("id", arrow::int32()));
   fields_list.push_back(arrow::field("str", arrow::utf8()));
@@ -55,25 +52,20 @@ Status RunMain(int argc, char** argv) {
   std::cerr << "* Read table:" << std::endl;
   ARROW_RETURN_NOT_OK(arrow::PrettyPrint(*table, {}, &std::cerr));
 
-  std::cerr << "* Writing table into Arrow IPC file '" << arrow_filename << "'"
-            << std::endl;
-  ARROW_ASSIGN_OR_RAISE(auto output_file,
-                        arrow::io::FileOutputStream::Open(arrow_filename));
-  ARROW_ASSIGN_OR_RAISE(auto batch_writer,
-                        arrow::ipc::MakeFileWriter(output_file, table->schema()));
-  ARROW_RETURN_NOT_OK(batch_writer->WriteTable(*table));
-  ARROW_RETURN_NOT_OK(batch_writer->Close());
-
   return Status::OK();
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-  Status st = RunMain(argc, argv);
+  if (argc < 2) {
+    std::cerr << "Args: json_filename" << std::endl;
+    return 1;
+  }
+  std::cerr << "Reading " << argv[1];
+  Status st = RunMain(argv[1]);
   if (!st.ok()) {
     std::cerr << st << std::endl;
     return 1;
   }
-  return 0;
 }

@@ -16,13 +16,13 @@ Then in this project folder, build and run the program.
 cd ~/workspace/arrow-helloworld
 cmake .
 make
-./json_decimal_example
+./json_decimal_example test_quoted.json
 ```
 
 The outpus:
 
 ```
-* Reading JSON file 'test.json' into table
+* Reading JSON file 'test_quoted.json' into table
 * Read table:
 id: int32
 str: string
@@ -49,5 +49,12 @@ price:
       12.34
     ]
   ]
-* Writing table into Arrow IPC file 'test.arrow'
+```
+
+Test another json file with unquoted decimal values:
+
+```
+$ ./json_decimal_example test_unquoted.json 
+Reading test_unquoted.json* Reading JSON file 'test_unquoted.json' into table
+Invalid: JSON parse error: Column(/price) changed from string to number in row 0
 ```
