@@ -15,14 +15,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#include <arrow/array.h>
 #include <arrow/json/api.h>
 #include <arrow/io/api.h>
 #include <arrow/ipc/api.h>
-#include <arrow/pretty_print.h>
 #include <arrow/result.h>
 #include <arrow/status.h>
 #include <arrow/table.h>
 #include <arrow/memory_pool.h>
+#include "arrow/util/decimal.h"
 
 #include <iostream>
 #include <vector>
@@ -49,8 +50,17 @@ Status RunMain(const char* json_filename) {
                                              parseOptions));
   ARROW_ASSIGN_OR_RAISE(auto table, json_reader->Read());
 
-  std::cerr << "* Read table:" << std::endl;
-  ARROW_RETURN_NOT_OK(arrow::PrettyPrint(*table, {}, &std::cerr));
+  std::cerr << "* Read decimals:" << std::endl;
+
+  const auto& column = table->column(2);
+  const auto& arr = column->chunk(0)->data();
+  arrow::Decimal128Array decimal_arr(arr);
+  std::cerr << "bytes_width: " << decimal_arr.byte_width() << std::endl;
+  for (int i = 0; i < table->num_rows(); ++i) {
+    const arrow::Decimal128 value(decimal_arr.GetValue(i));
+    std::cerr << "row " << i << ": high_bits=" << value.high_bits()
+              << ", low_bits=" << value.low_bits() << std::endl;
+  }
 
   return Status::OK();
 }
